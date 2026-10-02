@@ -1,0 +1,54 @@
+{% extends "_base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Turn your idea into a comic</h1>
+  <p>Describe a story, pick a mood and an art style, and ComicCraft writes and draws a panel-by-panel comic for you.</p>
+</section>
+
+<form class="card form" method="post" action="/generate" id="comic-form">
+  {% if errors %}
+  <div class="alert">
+    <strong>Please fix the following:</strong>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <label for="story_prompt">Story prompt</label>
+  <textarea id="story_prompt" name="story_prompt" rows="4" minlength="5" maxlength="500" required
+    placeholder="A brave fox exploring an enchanted forest">{{ form.story_prompt or '' }}</textarea>
+
+  <label for="character_name">Main character name</label>
+  <input id="character_name" name="character_name" maxlength="40" required placeholder="Rusty"
+    value="{{ form.character_name or '' }}">
+
+  <div class="grid3">
+    <div>
+      <label for="setting">Setting</label>
+      <select id="setting" name="setting">
+        {% for s in settings_opts %}<option value="{{ s }}" {% if form.setting == s or (not form.setting and s == 'forest') %}selected{% endif %}>{{ s|title }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="tone">Story tone</label>
+      <select id="tone" name="tone">
+        {% for t in tones %}<option value="{{ t }}" {% if form.tone == t or (not form.tone and t == 'dramatic') %}selected{% endif %}>{{ t|title }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="art_style">Art style</label>
+      <select id="art_style" name="art_style">
+        {% for a in styles %}<option value="{{ a }}" {% if form.art_style == a or (not form.art_style and a == 'comic book') %}selected{% endif %}>{{ a|title }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <button type="submit" class="btn primary">Generate my comic</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById('comic-form').addEventListener('submit', e => {
+    const b = e.target.querySelector('button'); b.disabled = true; b.textContent = 'Starting…';
+  });
+</script>
+{% endblock %}

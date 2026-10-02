@@ -1,0 +1,61 @@
+{% extends "_base.html" %}
+{% block title %}{{ comic.title }} · ComicCraft{% endblock %}
+{% block content %}
+<section class="comic-head">
+  <h1>{{ comic.title }}</h1>
+  <p class="muted">Starring <strong>{{ comic.request.character_name }}</strong> ·
+    {{ comic.request.tone.value|title }} · {{ comic.request.art_style.value|title }} · {{ comic.request.setting.value|title }}</p>
+  <div class="actions">
+    <a class="btn primary" id="download" href="/comics/{{ comic.id }}/pdf"
+       data-success="/export-success?comic_id={{ comic.id }}">Download your comic as PDF</a>
+    <a class="btn" href="/">New comic</a>
+  </div>
+</section>
+
+<section class="panels">
+  {% for panel in layout %}
+  <article class="panel">
+    <h3>Panel {{ panel.panel_number }}: {{ panel.title }}</h3>
+    {% if panel.image_url %}
+    <img src="{{ panel.image_url }}" alt="{{ panel.scene_description }}" loading="lazy">
+    {% endif %}
+    {% if panel.caption %}<p class="caption">{{ panel.caption }}</p>{% endif %}
+    <p class="scene"><em>{{ panel.scene_description }}</em></p>
+    {% if panel.narration %}<p>{{ panel.narration }}</p>{% endif %}
+    {% for d in panel.dialogue %}
+    <p class="bubble"><strong>{{ d.speaker }}:</strong> “{{ d.line }}”</p>
+    {% endfor %}
+    <details><summary>Image prompt</summary><p class="small muted">{{ panel.image_prompt }}</p></details>
+  </article>
+  {% endfor %}
+</section>
+
+<form class="card form regen" method="post" action="/comics/{{ comic.id }}/regenerate">
+  <h2>Not quite right? Regenerate</h2>
+  <p class="muted small">Change only the art style to redraw the images and keep the story. Change the tone to rewrite everything.</p>
+  <div class="grid2">
+    <div>
+      <label for="tone">Story tone</label>
+      <select id="tone" name="tone">
+        {% for t in tones %}<option value="{{ t }}" {% if t == comic.request.tone.value %}selected{% endif %}>{{ t|title }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="art_style">Art style</label>
+      <select id="art_style" name="art_style">
+        {% for a in styles %}<option value="{{ a }}" {% if a == comic.request.art_style.value %}selected{% endif %}>{{ a|title }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+  <button class="btn" type="submit">Regenerate</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Start the download, then move to the export success page.
+  document.getElementById('download').addEventListener('click', e => {
+    const a = e.currentTarget;
+    setTimeout(() => { window.location.href = a.dataset.success; }, 1500);
+  });
+</script>
+{% endblock %}

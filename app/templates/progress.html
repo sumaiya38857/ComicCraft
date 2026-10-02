@@ -1,0 +1,16 @@
+{% extends "_base.html" %}
+{% block title %}Creating your comic… · ComicCraft{% endblock %}
+{% block content %}
+<section class="card progress-card" id="progress" data-job="{{ job.job_id }}" data-comic="{{ job.comic_id }}">
+  <h2>Creating your comic</h2>
+  <p class="step" id="step">{{ job.step }}</p>
+  <div class="bar"><div class="fill" id="fill" style="width: {{ job.progress }}%"></div></div>
+  <p class="muted" id="pct">{{ job.progress }}%</p>
+  <p class="muted small">Image generation can take a few minutes on CPU. You can leave this page open.</p>
+  <div class="alert hidden" id="error"></div>
+  <a href="/" class="btn hidden" id="back">Try again</a>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', path='js/progress.js') }}"></script>
+{% endblock %}

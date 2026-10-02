@@ -1,0 +1,13 @@
+{% extends "_base.html" %}
+{% block title %}Comic exported · ComicCraft{% endblock %}
+{% block content %}
+<section class="card center">
+  <h1 class="pow">POW!</h1>
+  <h2>Your comic has been downloaded</h2>
+  <p class="muted">Check your downloads folder for the PDF. Print it, share it, or keep it for later.</p>
+  <div class="actions">
+    <a class="btn primary" href="/">Go create another comic</a>
+    {% if comic_id %}<a class="btn" href="/comics/{{ comic_id }}">Back to this comic</a>{% endif %}
+  </div>
+</section>
+{% endblock %}
