@@ -200,9 +200,11 @@ class CloudflareImageGenerator:
 
         s = self._s
         url = self.URL.format(account=s.cloudflare_account_id, model=s.cloudflare_image_model)
-        body = {"prompt": prompt[:2000], "seed": seed % 2**31, "steps": 4}
-        if "flux" not in s.cloudflare_image_model:  # SD-style models
-            body.update(negative_prompt=NEGATIVE_PROMPT, width=s.image_width, height=s.image_height, num_steps=body.pop("steps"))
+        if "flux" in s.cloudflare_image_model:
+            body = {"prompt": prompt[:2000], "steps": 4}  # FLUX schnell accepts only prompt + steps
+        else:  # SD-style models
+            body = {"prompt": prompt[:2000], "negative_prompt": NEGATIVE_PROMPT, "seed": seed % 2**31,
+                    "width": s.image_width, "height": s.image_height, "num_steps": 8}
         try:
             r = httpx.post(url, json=body, headers={"Authorization": f"Bearer {s.cloudflare_api_token}"}, timeout=120)
         except httpx.HTTPError as e:

@@ -51,7 +51,7 @@ def test_cloudflare_flux_base64(settings, tmp_path, monkeypatch):
     monkeypatch.setattr(httpx, "post", fake_post)
     out = ig.CloudflareImageGenerator(settings).generate("a fox", tmp_path / "c.png", 5)
     assert out.exists() and "/accounts/acc/ai/run/@cf/black-forest-labs/flux-1-schnell" in seen["url"]
-    assert seen["auth"] == "Bearer tok" and seen["json"]["seed"] == 5
+    assert seen["auth"] == "Bearer tok" and set(seen["json"]) == {"prompt", "steps"}
 
 
 def test_cloudflare_error_message(settings, tmp_path, monkeypatch):
