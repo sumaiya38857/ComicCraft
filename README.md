@@ -21,7 +21,8 @@ Then open http://127.0.0.1:8000 for the app, or http://127.0.0.1:8000/docs for t
    - `IMAGE_BACKEND=diffusers` runs Stable Diffusion locally. Install it with `pip install -r requirements-ml.txt`. The first run downloads the model (about 4 GB). Expect 1–3 minutes per panel on CPU and a few seconds per panel on an NVIDIA GPU.
    - `IMAGE_BACKEND=hf_api` uses the Hugging Face hosted API. It needs `HF_API_KEY` and installs no PyTorch. This is the best choice on a laptop without a GPU.
    - `IMAGE_BACKEND=gemini` draws the panels with a Gemini image model using your `GEMINI_API_KEY`. Google may require billing to be enabled for image models.
-   - `IMAGE_BACKEND=pollinations` uses the free pollinations.ai service. It needs no key but is rate-limited, so a comic can take a minute or two.
+   - `IMAGE_BACKEND=cloudflare` uses Cloudflare Workers AI (FLUX.1 schnell). The free plan has a daily allowance and needs no card. Set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`.
+   - `IMAGE_BACKEND=pollinations` uses the free pollinations.ai service. It may now require a paid plan.
    - `IMAGE_BACKEND=mock` draws placeholder images, which is useful while working on the UI.
 
 > **Intel Macs:** PyTorch's last macOS x86_64 release is 2.2.2, and it needs NumPy < 2. `requirements-ml.txt` pins both for you.

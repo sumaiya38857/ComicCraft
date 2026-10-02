@@ -181,6 +181,48 @@ class PollinationsImageGenerator:
         raise GenerationError(f"Pollinations image generation failed: {last or 'rate limited'}")
 
 
+class CloudflareImageGenerator:
+    """Cloudflare Workers AI (free daily allowance). Needs CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN."""
+
+    URL = "https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{model}"
+
+    def __init__(self, settings: Settings):
+        if not (settings.cloudflare_account_id and settings.cloudflare_api_token):
+            raise GenerationError(
+                "CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are required for IMAGE_BACKEND=cloudflare."
+            )
+        self._s = settings
+
+    def generate(self, prompt: str, out_path: Path, seed: int) -> Path:
+        import base64
+
+        import httpx
+
+        s = self._s
+        url = self.URL.format(account=s.cloudflare_account_id, model=s.cloudflare_image_model)
+        body = {"prompt": prompt[:2000], "seed": seed % 2**31, "steps": 4}
+        if "flux" not in s.cloudflare_image_model:  # SD-style models
+            body.update(negative_prompt=NEGATIVE_PROMPT, width=s.image_width, height=s.image_height, num_steps=body.pop("steps"))
+        try:
+            r = httpx.post(url, json=body, headers={"Authorization": f"Bearer {s.cloudflare_api_token}"}, timeout=120)
+        except httpx.HTTPError as e:
+            raise GenerationError(f"Cloudflare image generation failed: {e}") from e
+        if r.status_code >= 400:
+            try:
+                msg = "; ".join(e.get("message", "") for e in r.json().get("errors", [])) or r.text[:300]
+            except ValueError:
+                msg = r.text[:300]
+            raise GenerationError(f"Cloudflare image generation failed ({r.status_code}): {msg}")
+        if r.headers.get("content-type", "").startswith("image/"):
+            data = r.content  # SDXL models return raw PNG bytes
+        else:
+            data = base64.b64decode(r.json()["result"]["image"])  # FLUX returns base64 JSON
+        image = Image.open(io.BytesIO(data)).convert("RGB")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        image.save(out_path)
+        return out_path
+
+
 class MockImageGenerator:
     def __init__(self, settings: Settings):
         self._size = (settings.image_width, settings.image_height)
@@ -213,6 +255,8 @@ def create_image_generator(settings: Settings) -> ImageGenerator:
         return HFInferenceImageGenerator(settings)
     if settings.image_backend == "gemini":
         return GeminiImageGenerator(settings)
+    if settings.image_backend == "cloudflare":
+        return CloudflareImageGenerator(settings)
     if settings.image_backend == "pollinations":
         return PollinationsImageGenerator(settings)
     return DiffusersImageGenerator(settings)

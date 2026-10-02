@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # --- Backends ---
     # "mock" backends let you run the whole app without API keys or a GPU.
     llm_backend: Literal["gemini", "mock"] = "gemini"
-    image_backend: Literal["diffusers", "hf_api", "gemini", "pollinations", "mock"] = "diffusers"
+    image_backend: Literal["diffusers", "hf_api", "gemini", "cloudflare", "pollinations", "mock"] = "diffusers"
 
     # --- Text models (check https://ai.google.dev/gemini-api/docs/models for current names) ---
     outline_model: str = "gemini-2.5-flash"
@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     hf_image_model: str = "stabilityai/stable-diffusion-xl-base-1.0"
     gemini_image_model: str = "gemini-2.5-flash-image"
     pollinations_model: str = "flux"
+    cloudflare_account_id: str = ""
+    cloudflare_api_token: str = ""
+    cloudflare_image_model: str = "@cf/black-forest-labs/flux-1-schnell"
     image_width: int = 512
     image_height: int = 512
     num_inference_steps: int = 25
