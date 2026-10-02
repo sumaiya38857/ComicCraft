@@ -2,6 +2,8 @@
 
 An AI comic story creator. Gemini Flash plans the panels, Gemini Pro writes the narration and dialogue, and Stable Diffusion draws each panel. The result shows up in the browser and can be downloaded as a PDF.
 
+> **New Windows machine?** Follow the step-by-step guide in [docs/WINDOWS_SETUP.md](docs/WINDOWS_SETUP.md). It covers installing Python and Git, getting the API keys, running the app and troubleshooting.
+
 ## Quick start (no API keys, no GPU)
 
 ```bash
